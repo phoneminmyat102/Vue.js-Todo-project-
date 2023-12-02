@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue Todo Project</title>
+    <style>
+        ul {
+            list-style-type: none;
+        }
+
+        .done {
+            text-decoration: line-through;
+        }
+    </style>
+</head>
+<body>
+    <div id="todoProject">
+        <h2>{{ project_title }} ( {{ countTotal }} )</h2>
+        <form action="" @submit.prevent="addItem" >
+            <input type="text" v-model="newItem">
+            <button type="submit" :disabled="newItem.length === 0 ? true : false">Add Item</button>
+        </form>
+
+        <ul>
+            <li v-for="(todo, index) in todos">
+                <input type="checkbox" v-model="todo.completed">
+               <span :class="{done : todo.completed}">{{ todo.title }}</span> 
+                <button @click="deleteItem(index)" v-if="todo.completed">Delete</button>
+            </li>
+        </ul>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    <script>
+
+        new Vue({
+            el: "#todoProject",
+            data: {
+                newItem: '',
+                project_title:"Todo List",
+                todos: []
+            },
+            methods:{
+                getData() {
+                    let me = this;
+                    fetch('https://jsonplaceholder.typicode.com/todos?_limit=5')
+                    .then(function(response) {
+                        return response.json()
+                    })
+                    .then(function(json) {
+                        me.todos = json;
+                    })
+                },
+
+                addItem: function() {
+                    let item = {title:this.newItem, completed: false}
+
+                    this.todos = [...this.todos, item]
+                    this.newItem=''
+                },
+                deleteItem(index) {
+                    this.todos.splice(index, 1)
+                },
+                
+            },
+            created() {
+                this.getData()
+            },
+            computed: {
+                countTotal() {
+                    let total = this.todos.filter(function (x) {
+                        return x.completed === false;
+                    });
+                    return total.length;
+                }
+            } 
+        })
+    </script>
+</body>
+</html>
